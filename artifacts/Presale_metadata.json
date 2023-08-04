@@ -1,0 +1,45 @@
+{
+	"compiler": {
+		"version": "0.8.18+commit.87f61d96"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"presale.sol": "Presale"
+		},
+		"evmVersion": "paris",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"presale.sol": {
+			"keccak256": "0x709c51ff6e80ae27a4b405edd77bc472b644d47b535a91993793b27e82c8a424",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://b8d44fe0b1f533fc9ed5f848a81b80bcdc5086223c4ad0681c2095ec4dbb39dd",
+				"dweb:/ipfs/QmPCgfkSV1FLi54CuuxPXeGBZbot8xyY3LkNRELkg7KtmF"
+			]
+		}
+	},
+	"version": 1
+}
