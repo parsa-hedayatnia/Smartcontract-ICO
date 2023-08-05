@@ -28,5 +28,83 @@ contract Presale is ReentrancyGuard, Context, Ownable {
         require(endICO < block.timestamp, "ICO should not be active");
         _;
     }
+        constructor(uint rate, address payable wallet, IERC20 token, uint tokenDecimals) {
+        require(rate > 0, "Presale rate must be > 0");
+        require(wallet != address(0),"Presale wallet must be another address");
+        require(address(token) != address(0), " Presale token address is wrong");
 
+        _rate = rate;
+        _wallet = wallet;
+        _token = token;
+        _tokenDecimals = 18 - tokenDecimals;
+    }
+
+    function startICO(uint endDate) external onlyOwner icoNotActive() {
+        availableTokensICO = _token.balanceOf(address(this));
+        require(endDate > block.timestamp, " duration must be > 0");
+        require(availableTokensICO > 0, "availableTokensICO must be > 0");
+        endICO = endDate;
+        _weiRaised = 0;
+    }
+
+    function stopICO() external onlyOwner icoActive() {
+        endICO = 0;
+        _forwardFunds();
+    }
+
+    function buyTokens(address beneficiary) public nonReentrant icoActive payable {
+        uint weiAmount = msg.value;
+        uint tokens = _getTokenAmount(weiAmount);
+        _weiRaised = _weiRaised.add(weiAmount);
+        availableTokensICO = availableTokensICO - tokens;
+        _contributions[beneficiary] = _contributions[beneficiary].add(weiAmount);
+
+        emit TokenPurchased(_msgSender(), beneficiary, weiAmount, tokens);
+    }
+
+    function _getTokenAmount(uint  weiAmount) internal view returns(uint) {
+        return weiAmount.mul(_rate).div(10 ** _tokenDecimals);
+    }
+
+    function claimTokens() external icoNotActive {
+        uint tokensAmt = _getTokenAmount(_contributions[msg.sender]);
+        _contributions[msg.sender] = 0;
+        _token.transfer(msg.sender, tokensAmt);
+    }
+
+    function _forwardFunds() internal {
+        _wallet.transfer(address(this).balance);
+    }
+
+    function withdraw() external onlyOwner icoNotActive {
+        require(address(this).balance > 0, " there is no money in contract");
+        _wallet.transfer(address(this).balance);
+    }
+
+    function checkContribution(address addr) public view returns (uint) {
+        return _contributions[addr];
+    }
+
+    function setRate(uint newRate) external onlyOwner icoNotActive {
+        _rate = newRate;
+    }
+
+    function setAvailableTokens(uint amount) external onlyOwner icoNotActive {
+        availableTokensICO = amount;
+    }
+
+    function weiRaised() external view returns (uint) {
+        return _weiRaised;
+    }
+
+    function setNewWallet(address payable newWallet) external onlyOwner {
+        _wallet = newWallet;
+    }
+
+    function takeTokens(IERC20 tokenAddress) public onlyOwner icoNotActive {
+        IERC20 tokenERC20 = tokenAddress;
+        uint tokenAmt = tokenERC20.balanceOf(address(this));
+        require(tokenAmt > 0, "balance is not enough");
+        tokenERC20.transfer(_wallet, tokenAmt);
+    }
 }
